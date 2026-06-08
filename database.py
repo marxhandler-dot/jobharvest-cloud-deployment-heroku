@@ -1,6 +1,7 @@
 import psycopg2
 from config import LIMIT
 import os
+from psycopg2 import extras
 
 DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://localhost/jobharvest')
 

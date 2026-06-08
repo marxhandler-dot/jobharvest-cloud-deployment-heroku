@@ -2,7 +2,7 @@
 venv/
 
 # Ignore Python cache files
-__pychache__/
+__pycache__/
 
 # Ignore local database files
 jobs.db
