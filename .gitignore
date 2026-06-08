@@ -1,0 +1,8 @@
+# Ignore the virtual environment folder
+venv/
+
+# Ignore Python cache files
+__pychache__/
+
+# Ignore local database files
+jobs.db

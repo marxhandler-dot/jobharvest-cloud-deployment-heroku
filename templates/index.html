@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <form>
+        <input type="search" id="search-input" name="keyword">
+        <!-- Search queries the existing DB; Scrape triggers a fresh crawl first. -->
+        <button type="button" id="search-btn">Search</button>
+        <button type="button" id="scrape-btn">Scrape Jobs</button>
+    </form>
+
+    <p id="empty-message">No jobs loaded yet. Click Scrape Jobs to get started.</p>
+
+    <section id="result-container" aria-live="polite">
+        <ul id="job-list" class="job-grid"></ul>
+    </section>
+
+    <script>
+        document.getElementById('scrape-btn').addEventListener('click', () => {
+            const emptyMessageElement = document.getElementById('empty-message')
+            const jobListElement = document.getElementById('job-list')
+
+            // Chain: POST /api/scrape (mutates DB) → GET /api/jobs (reads DB).
+            // The scrape response is intentionally discarded; we always re-fetch
+            // the full job list to reflect the post-scrape state.
+            fetch('/api/scrape', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => { return fetch('/api/jobs', { method: 'GET' }) })
+            .then(response => response.json())
+            .then(data => {
+                emptyMessageElement.classList.add('hidden');
+                jobListElement.classList.remove('hidden');
+                console.log(data);
+                // ?? falls back to placeholder text only when description is null/undefined —
+                // not when it's an empty string, so a blank description would still render blank.
+                document.getElementById('job-list').innerHTML = data.map(job => `
+                    <li>
+                        <h3>${job.job_title}</h3>
+                        <p>${job.company_name}</p>
+                        <p>${job.location}</p>
+                        <p>${job.description ?? "Click the link for the full job description!"}</p>
+                        <a href="${job.job_url}">View Job</a>
+                    </li>`
+                ).join('')
+            })
+        })
+
+        // Delegates Enter key to the search button to avoid a full page reload,
+        // which would otherwise be triggered by default form submission behaviour.
+        document.getElementById('search-input').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter'){
+                event.preventDefault();
+                document.getElementById('search-btn').click()
+            }
+        });
+
+        document.getElementById('search-btn').addEventListener('click', () => {
+            const searchKeyword = document.getElementById('search-input').value
+            const emptyMessageElement = document.getElementById('empty-message')
+            const jobListElement = document.getElementById('job-list')
+
+            // encodeURIComponent guards against breaking the query string with
+            // special characters (spaces, &, #, etc.) in the keyword.
+            fetch(`/api/jobs?keyword=${encodeURIComponent(searchKeyword)}`, { method: 'GET' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) {
+                    emptyMessageElement.textContent = "No results found. Try a different search.";
+                    emptyMessageElement.classList.remove('hidden');
+                    jobListElement.classList.add('hidden');
+                } else {
+                    emptyMessageElement.classList.add('hidden');
+                    jobListElement.classList.remove('hidden');
+                    jobListElement.innerHTML = data.map(job => `
+                <li>
+                    <h3>${job.job_title}</h3>
+                    <p>${job.company_name}</p>
+                    <p>${job.location}</p>
+                    <p>${job.description ?? "Click the link for the full job description!"}</p>
+                    <a href="${job.job_url}">View Job</a>
+                </li>`
+            ).join('')
+        }             
+            })
+            .catch(error => console.error("Search failed:", error))
+        })
+    </script>
+</body>
+</html>
