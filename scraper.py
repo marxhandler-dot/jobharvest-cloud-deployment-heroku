@@ -11,7 +11,6 @@ from bs4 import BeautifulSoup
 from config import JOB_SOURCE
 from datetime import datetime
 from database import add_job, add_scrape_job
-import time
 
 
 def scrape_jobs(connection, pages):
@@ -28,7 +27,7 @@ def scrape_jobs(connection, pages):
 
     new_jobs = 0
     existing_job = 0
-    start_time = time.time()
+    start_time = datetime.now()
 
     for page_num in range(1, pages + 1):
         try:
@@ -54,7 +53,7 @@ def scrape_jobs(connection, pages):
                 job_url = f"https://www.python.org{lists.select_one('.listing-company-name a')['href']}"
 
                 source = JOB_SOURCE
-                time_stamp = datetime.now().strftime("%m/%d/%y %I:%M %p")
+                time_stamp = datetime.now()
 
                 # Heuristic remote detection — checks both location and title
                 # since listings are inconsistent about where they indicate remote.
@@ -80,10 +79,7 @@ def scrape_jobs(connection, pages):
             print(f"Failed to scrape page {page_num}: {e}")
             continue
 
-    end_time = time.time()
-    cleaned_start_time = str(datetime.fromtimestamp(start_time))
-    completion_time = end_time - start_time
-    cleaned_completion_time = f"{completion_time:.2f} seconds"
+    completion_time = datetime.now()
 
     total_jobs_found = new_jobs + existing_job
 
@@ -94,7 +90,7 @@ def scrape_jobs(connection, pages):
     else:
         status = "failed"
 
-    add_scrape_job(connection, source, total_jobs_found, new_jobs, cleaned_start_time, cleaned_completion_time, status)
+    add_scrape_job(connection, source, total_jobs_found, new_jobs, start_time, completion_time, status)
 
     final_results = {
         "total_jobs_found": f"Total jobs found: {total_jobs_found}",

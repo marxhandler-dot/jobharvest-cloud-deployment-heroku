@@ -17,7 +17,7 @@ jobs_table = """CREATE TABLE IF NOT EXISTS jobs_table(
     description TEXT,
     job_url TEXT UNIQUE,
     source TEXT NOT NULL,
-    time_stamp TEXT NOT NULL,
+    time_stamp TIMESTAMPTZ NOT NULL,
     remote_flag BOOLEAN
 )"""
 
@@ -26,8 +26,8 @@ scrape_runs = """CREATE TABLE IF NOT EXISTS scrape_runs(
     source_site TEXT NOT NULL,
     jobs_found INTEGER NOT NULL,
     jobs_added INTEGER NOT NULL,
-    start_time REAL NOT NULL,
-    completion_time REAL NOT NULL,
+    start_time TIMESTAMPTZ NOT NULL,
+    completion_time TIMESTAMPTZ NOT NULL,
     status TEXT NOT NULL
 )"""
 
