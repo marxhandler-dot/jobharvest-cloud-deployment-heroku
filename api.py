@@ -23,6 +23,7 @@ from config import PAGES_TO_SCRAPE   # How many pages to scrape per run (set onc
 
 import csv   # Built-in module for writing comma-separated values
 import io    # Built-in module for working with in-memory streams (no disk writes needed)
+from datetime import datetime
 
 
 # Flask(__name__) creates the application instance.
@@ -177,6 +178,28 @@ def export_job():
     response.headers['Content-Disposition'] = 'attachment; filename=job_report.csv'
     return response
 
+@app.route('/health')
+def health_check():
+    try:
+        connection = initialize_db()
+        if connection:
+            good_results = {
+                'application_status': 'active',
+                'current_timestamp': datetime.now().strftime("%B %d, %Y at %I:%M %p"),
+                'database_status': 'connection was healthy',
+                'application_version': 'version 1.0'
+            }
+            connection.close()
+            return jsonify(good_results)
+
+    except Exception as e:
+        bad_results = {
+                'application_status': 'inactive',
+                'current_timestamp': datetime.now().strftime("%B %d, %Y at %I:%M %p"),
+                'database_status': f'connection was unhealthy: {e}',
+                'application_version': 'version 1.0'
+            }
+        return jsonify(bad_results)
 
 # This block only runs when the script is executed directly (e.g. `python api.py`).
 # It does NOT run when Flask is started via a WSGI server (gunicorn, etc.) in production.
