@@ -31,12 +31,6 @@ from datetime import datetime
 # (relative to this file's location).
 app = Flask(__name__)
 
-# Run DB initialization once when the server starts — this ensures the
-# tables exist before any request tries to use them. The connection is
-# closed right away because each route will open its own fresh connection.
-connection = initialize_db()
-connection.close()
-
 
 @app.route("/")
 def home():
