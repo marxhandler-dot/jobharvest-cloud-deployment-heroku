@@ -33,7 +33,7 @@ def scrape_jobs(connection, pages):
         try:
             # verify=False skips SSL validation — acceptable here for a known
             # public endpoint, but worth revisiting if cert issues are resolved.
-            response = requests.get(url.format(page_num), headers=headers, verify=False)
+            response = requests.get(url.format(page_num), headers=headers)
             response.encoding = 'utf-8'
             soup = BeautifulSoup(response.text, "lxml")
 
