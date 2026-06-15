@@ -174,12 +174,12 @@ def search_jobs(connection, key_word, location, remote, limit):
     params = []      # Corresponding values — kept in sync with conditions
 
     if key_word is not None:
-        # LIKE with % wildcards on both sides = "contains" matching, not exact.
-        conditions.append("job_title LIKE %s")
+        # ILIKE with % wildcards on both sides = "contains" matching, not exact.
+        conditions.append("job_title ILIKE %s")
         params.append(f"%{key_word}%")  # e.g. "%python%" matches "Senior Python Dev"
 
     if location is not None:
-        conditions.append("location LIKE %s")
+        conditions.append("location ILIKE %s")
         params.append(f"%{location}%")
 
     if remote:
